@@ -16,7 +16,8 @@ N	:=	\033[1;30m
 .PHONY: up down build check display clean-cont clean-img stop bash
 
 ######################################################################
-up: build #volume
+
+up: build
 	@mkdir -p app;
 	@docker run --mount src=`pwd`/app,target=/app,type=bind --init -d -p $(PORT):5173 --name $(CONT_NAME) $(IMG_NAME);
 	@if [ $$($(IS_RUNNING)) -ge 1 ]; then \
@@ -24,9 +25,6 @@ up: build #volume
 	else \
 		echo "$(R)* $(PROJECT_NAME) not running$(W)"; \
 	fi
-
-# volume:
-# 	@docker volume create $(PROJECT_NAME)-volume;
 
 build:
 	@echo "$(G)* Building the image...$(W)";
@@ -76,22 +74,6 @@ clean-img: clean-cont
 	else \
 		echo "$(N)* No image to remove$(W)"; \
 	fi
-
-# clean-vol:
-# 	@if [ $$(docker volume ls --quiet | wc -l) -ge 1 ]; then \
-# 		docker volume rm $$(docker volume ls --quiet); \
-# 		echo "$(G)* All volumes removed$(W)"; \
-# 	else \
-# 		echo "$(N)* No volumes to remove$(W)"; \
-# 	fi
-
-# clean-net:
-# 	@if [ $$(docker network ls --quiet | wc -l) -gt 3 ]; then \
-# 		docker network rm $$(docker network ls --quiet); \
-# 		echo "$(G)* All custom networks removed$(W)"; \
-# 	else \
-# 		echo "$(N)* No custom networks to remove$(W)"; \
-# 	fi
 
 fclean: stop clean-img
 
