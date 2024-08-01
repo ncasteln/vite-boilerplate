@@ -1,15 +1,17 @@
 FROM debian:bookworm
 
-WORKDIR /app
 
 RUN apt-get update -y && apt-get upgrade && apt-get install -y \
 	procps \
 	npm
 
-RUN yes | npm create vite@latest ./ -- --template vanilla-ts
-COPY ./app/vite.config.ts .
-RUN npm i
+COPY config/vite.config.ts /vite.config.ts
+COPY docker-entrypoint.sh /
+
+WORKDIR /app
 
 EXPOSE 5173
 
-ENTRYPOINT [ "npm", "run", "dev" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+
+# ENTRYPOINT [ "npm", "run", "dev" ]

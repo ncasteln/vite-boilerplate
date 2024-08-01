@@ -5,8 +5,6 @@ CONT_NAME		:=	$(PROJECT_NAME)-cont
 PORT			:=	8080
 IS_RUNNING		=	docker ps -a --filter "status=running" | grep $(CONT_NAME) | wc -l
 
-#--mount type=bind,source=/Users/ncasteln/Projects/memory-game/frontend/app,target=/app
-
 # colors
 G	:=	\033[0;32m
 Y	:=	\033[0;33m
@@ -18,13 +16,20 @@ N	:=	\033[1;30m
 .PHONY: up down build check display clean-cont clean-img stop bash
 
 ######################################################################
-up: build
-	@docker run --init -d -p $(PORT):5173 --name $(CONT_NAME) $(IMG_NAME);
-	$(MAKE) check;
-	@echo "$(G)* $(PROJECT_NAME) accessible at http://localhost:$(PORT)$(W)"; \
+up: build #volume
+	@mkdir app;
+	@docker run --mount src=`pwd`/app,target=/app,type=bind --init -d -p $(PORT):5173 --name $(CONT_NAME) $(IMG_NAME);
+	@if [ $$($(IS_RUNNING)) -ge 1 ]; then \
+		echo "$(G)* $(PROJECT_NAME) accessible at http://localhost:$(PORT)$(W)"; \
+	else \
+		echo "$(R)* $(PROJECT_NAME) not running$(W)"; \
+	fi
+
+# volume:
+# 	@docker volume create $(PROJECT_NAME)-volume;
 
 build:
-	@echo "$(G)* Composing build...$(W)";
+	@echo "$(G)* Building the image...$(W)";
 	@docker build -t $(IMG_NAME) ./
 
 # checker for running
