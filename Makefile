@@ -3,6 +3,8 @@ PROJECT_NAME	:=	$(notdir $(patsubst %/,%,$(dir $(MAKEFILE_PATH))))
 IMG_NAME		:=	$(PROJECT_NAME)-img
 CONT_NAME		:=	$(PROJECT_NAME)-cont
 ENV_FILE		:=	.env
+PORT			:=	8080
+IS_RUNNING		=	docker ps -a --filter "status=running" | grep $(CONT_NAME) | wc -l
 
 #--mount type=bind,source=/Users/ncasteln/Projects/memory-game/frontend/app,target=/app
 
@@ -18,7 +20,9 @@ N	:=	\033[1;30m
 
 ######################################################################
 up: build
-	@docker run --init -d -p 8080:8080 --name $(CONT_NAME) $(IMG_NAME)
+	@docker run --init -d -p $(PORT):5173 --name $(CONT_NAME) $(IMG_NAME);
+	$(MAKE) check;
+	@echo "$(G)* $(PROJECT_NAME) accessible at http://localhost:$(PORT)$(W)"; \
 
 build: $(ENV_FILE)
 	@echo "$(G)* Composing build...$(W)";
@@ -29,15 +33,15 @@ $(ENV_FILE):
 
 # checker for running
 check:
-	@if [ $$(docker ps -a --filter "status=running" | grep $(CONT_NAME) | wc -l) -ge 1 ]; then \
+	@if [ $$($(IS_RUNNING)) -ge 1 ]; then \
 		echo "$(G)* $(PROJECT_NAME) is running$(W)"; \
 	else \
 		echo "$(R)* $(PROJECT_NAME) not running$(W)"; \
+		exit 1; \
 	fi
 
-# checker for running
 bash:
-	@if [ $$(docker ps -a --filter "status=running" | grep $(CONT_NAME) | wc -l) -ge 1 ]; then \
+	@if [ $$($(IS_RUNNING)) -ge 1 ]; then \
 		docker exec -it $(CONT_NAME) /bin/bash; \
 	else \
 		echo "$(R)* $(PROJECT_NAME) not running$(W)"; \
@@ -45,7 +49,7 @@ bash:
 
 # cleanings for the current project
 stop:
-	@if [ $$(docker ps -a --filter "status=running" | grep $(CONT_NAME) | wc -l) -ge 1 ]; then \
+	@if [ $$($(IS_RUNNING)) -ge 1 ]; then \
 		docker stop $(CONT_NAME) >/dev/null; \
 		echo "$(G)* Container stopped$(W)"; \
 	else \
@@ -53,7 +57,7 @@ stop:
 	fi
 
 clean-cont:
-	@if [ $$(docker ps -a --filter "status=running" | grep $(CONT_NAME) | wc -l) -ge 1 ]; then \
+	@if [ $$($(IS_RUNNING)) -ge 1 ]; then \
 		echo "$(R)* Container is running, first stop it$(W)"; \
 		exit 1; \
 	fi
