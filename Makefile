@@ -17,7 +17,7 @@ N	:=	\033[1;30m
 
 ######################################################################
 up: build #volume
-	@mkdir app;
+	@mkdir -p app;
 	@docker run --mount src=`pwd`/app,target=/app,type=bind --init -d -p $(PORT):5173 --name $(CONT_NAME) $(IMG_NAME);
 	@if [ $$($(IS_RUNNING)) -ge 1 ]; then \
 		echo "$(G)* $(PROJECT_NAME) accessible at http://localhost:$(PORT)$(W)"; \
