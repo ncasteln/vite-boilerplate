@@ -1,8 +1,5 @@
 FROM debian:bookworm
 
-# TO ADD
-# 1) mount volume
-
 WORKDIR /app
 
 RUN apt-get update -y && apt-get upgrade && apt-get install -y \

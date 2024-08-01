@@ -2,7 +2,6 @@ MAKEFILE_PATH	:=	$(abspath $(lastword $(MAKEFILE_LIST)))
 PROJECT_NAME	:=	$(notdir $(patsubst %/,%,$(dir $(MAKEFILE_PATH))))
 IMG_NAME		:=	$(PROJECT_NAME)-img
 CONT_NAME		:=	$(PROJECT_NAME)-cont
-ENV_FILE		:=	.env
 PORT			:=	8080
 IS_RUNNING		=	docker ps -a --filter "status=running" | grep $(CONT_NAME) | wc -l
 
@@ -24,12 +23,9 @@ up: build
 	$(MAKE) check;
 	@echo "$(G)* $(PROJECT_NAME) accessible at http://localhost:$(PORT)$(W)"; \
 
-build: $(ENV_FILE)
+build:
 	@echo "$(G)* Composing build...$(W)";
 	@docker build -t $(IMG_NAME) ./
-
-$(ENV_FILE):
-	@./tools/create-env.sh $(PROJECT_NAME) $(IMG_NAME) $(CONT_NAME)
 
 # checker for running
 check:
